@@ -1,0 +1,236 @@
+# Text2TuneAI Configuration File
+
+# Project Settings
+project:
+  name: "Text2TuneAI"
+  version: "1.0.0"
+  description: "Deep Learning Pipeline for Text-to-Music Generation"
+  seed: 42
+
+# Data Settings
+data:
+  # DALI Dataset
+  dali:
+    root_dir: "data/raw/dali"
+    version: "v2.0"
+    download: true
+    audio_source: "youtube"  # youtube or spotify
+    sample_rate: 22050
+    max_duration: 30.0  # seconds
+
+  # Lakh MIDI Dataset
+  lakh:
+    root_dir: "data/raw/lakh_midi"
+    download: true
+    subset_size: 50000  # Use subset for faster training
+
+  # Processed Data
+  processed_dir: "data/processed"
+  cache_dir: "data/cache"
+  samples_dir: "data/samples"
+
+  # Data Splits
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
+  # Data Augmentation
+  augmentation:
+    transpose_range: [-5, 5]  # semitones
+    tempo_range: [0.8, 1.2]   # tempo multiplier
+    add_noise: false
+    pitch_shift: true
+    time_stretch: true
+
+# Model Architecture
+model:
+  name: "Text2TuneTransformer"
+
+  # Text Encoder (BERT-based)
+  text_encoder:
+    model_name: "bert-base-uncased"  # or distilbert-base-uncased for faster training
+    hidden_size: 768
+    num_layers: 6
+    num_heads: 12
+    dropout: 0.1
+    max_seq_length: 512
+    freeze_bert: false  # Set to true to freeze BERT weights
+
+  # Music Decoder (Transformer)
+  music_decoder:
+    vocab_size: 128  # MIDI note range (0-127)
+    hidden_size: 512
+    num_layers: 8
+    num_heads: 8
+    ff_dim: 2048
+    dropout: 0.1
+    max_seq_length: 1024  # max number of notes
+
+  # Cross-Attention
+  cross_attention:
+    num_heads: 8
+    dropout: 0.1
+
+  # Music Features
+  music_features:
+    note_range: [21, 108]  # A0 to C8 (piano range)
+    max_duration: 4.0  # max note duration in seconds
+    time_resolution: 0.05  # 50ms resolution
+    velocity_bins: 32  # quantize velocity
+
+  # Conditioning
+  conditioning:
+    use_emotion: true
+    use_tempo: true
+    use_key: true
+    use_genre: false
+    emotion_dim: 64
+    tempo_dim: 32
+    key_dim: 24
+
+# Training Settings
+training:
+  # Basic Training
+  batch_size: 16
+  num_epochs: 100
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  warmup_steps: 1000
+  gradient_clip: 1.0
+  accumulate_grad_batches: 4
+
+  # Optimizer
+  optimizer: "AdamW"  # AdamW, Adam, SGD
+  scheduler: "cosine"  # cosine, linear, polynomial
+
+  # Loss Weights
+  loss_weights:
+    reconstruction: 1.0
+    emotion_consistency: 0.3
+    musical_coherence: 0.5
+    rhythm_consistency: 0.4
+    pitch_contour: 0.3
+
+  # Early Stopping
+  early_stopping:
+    enabled: true
+    patience: 15
+    monitor: "val_loss"
+    mode: "min"
+
+  # Checkpointing
+  checkpoint:
+    save_top_k: 3
+    monitor: "val_loss"
+    mode: "min"
+    save_last: true
+    dirpath: "checkpoints"
+    filename: "text2tune-{epoch:02d}-{val_loss:.4f}"
+
+  # Mixed Precision
+  precision: "16-mixed"  # 32, 16-mixed, bf16-mixed
+
+  # Distributed Training
+  num_gpus: 1
+  num_nodes: 1
+  strategy: "auto"  # auto, ddp, dp
+
+# Validation & Evaluation
+evaluation:
+  metrics:
+    - "pitch_accuracy"
+    - "rhythm_accuracy"
+    - "emotion_alignment"
+    - "musical_coherence"
+    - "note_density"
+
+  generate_samples: true
+  num_samples: 10
+  sample_every_n_epochs: 5
+
+# Generation Settings
+generation:
+  # Sampling Strategy
+  strategy: "top_k"  # greedy, top_k, top_p, beam_search
+  top_k: 50
+  top_p: 0.9
+  temperature: 1.0
+  num_beams: 5
+
+  # Music Generation
+  min_notes: 20
+  max_notes: 500
+  default_tempo: 120  # BPM
+  default_key: "C"
+  default_time_signature: "4/4"
+
+  # Post-Processing
+  quantize_rhythm: true
+  add_accompaniment: false
+  harmonize: false
+
+  # Output Formats
+  output_formats:
+    - "midi"
+    - "musicxml"
+    - "audio"  # requires FluidSynth
+
+  # Audio Synthesis
+  soundfont: "FluidR3_GM.sf2"
+  audio_format: "wav"
+  audio_sample_rate: 44100
+
+# Feature Extraction
+features:
+  # Text Features
+  text:
+    use_bert_embeddings: true
+    use_sentiment: true
+    use_emotion: true
+    use_phonetics: true
+    use_syllable_count: true
+    use_rhyme_patterns: true
+
+  # Music Features
+  music:
+    use_pitch_class: true
+    use_intervals: true
+    use_contours: true
+    use_rhythm_patterns: true
+    use_harmony: true
+    extract_chords: false
+
+# Logging & Monitoring
+logging:
+  # Experiment Tracking
+  use_wandb: false
+  wandb_project: "text2tune-ai"
+  wandb_entity: null
+
+  # TensorBoard
+  use_tensorboard: true
+  log_dir: "logs"
+
+  # Logging Frequency
+  log_every_n_steps: 50
+  log_gradients: false
+  log_weights: false
+
+  # Verbosity
+  verbose: true
+  print_model_summary: true
+
+# System Settings
+system:
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+# Paths
+paths:
+  data_root: "data"
+  checkpoints: "checkpoints"
+  logs: "logs"
+  outputs: "outputs"
+  cache: "data/cache"
