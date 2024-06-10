@@ -1,0 +1,101 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+
+# Datasets
+data/raw/
+data/processed/
+data/cache/
+*.tar.gz
+*.zip
+*.gz
+
+# Outputs
+outputs/
+checkpoints/
+logs/
+*.mid
+*.midi
+*.wav
+*.mp3
+*.flac
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Tensorboard
+runs/
+lightning_logs/
+
+# Weights & Biases
+wandb/
+
+# Cache
+.cache/
+*.cache
+
+# System
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Config overrides
+configs/local_*.yaml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Documentation
+docs/_build/
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets
+.env
+.env.local
+*.key
+*.pem
+credentials.json
